@@ -7,5 +7,5 @@ public record UserDto(
     @JsonProperty("username") String username,
     @JsonProperty("keycloak_id") String keycloakId,
     @JsonProperty("email") String email,
-    @JsonProperty("status") String status,
+    @JsonProperty("creation_status") String status,
     @JsonProperty("version") Long version) {}

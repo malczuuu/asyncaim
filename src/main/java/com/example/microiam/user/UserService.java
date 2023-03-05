@@ -28,9 +28,7 @@ public class UserService {
   }
 
   public UserDto requestUserCreation(CreateUserDto user) {
-    UserEntity entity =
-        new UserEntity(
-            null, UUID.randomUUID().toString(), user.username(), null, user.email(), "idle", null);
+    UserEntity entity = createNewUserEntity(user);
     entity = userRepository.save(entity);
     userJobExecution.triggerUserCreation();
     return toUserDto(entity);
@@ -39,8 +37,8 @@ public class UserService {
   private Page<UserEntity> findUsers(UsersQuery query, Pagination pagination) {
     Sort.Order sortOrder = new Sort.Order(Sort.Direction.ASC, UserEntity.USERNAME);
     return query.isPresent()
-        ? userRepository.findAll(pagination.asPageable(sortOrder))
-        : userRepository.findAllByUsername(query.username(), pagination.asPageable(sortOrder));
+        ? userRepository.findAllByUsername(query.username(), pagination.asPageable(sortOrder))
+        : userRepository.findAll(pagination.asPageable(sortOrder));
   }
 
   private UserDto toUserDto(UserEntity user) {
@@ -49,7 +47,19 @@ public class UserService {
         user.username(),
         user.keycloakId(),
         user.email(),
-        user.status(),
+        user.creationStatus(),
         user.version());
+  }
+
+  private UserEntity createNewUserEntity(CreateUserDto user) {
+    return new UserEntity(
+        null,
+        UUID.randomUUID().toString(),
+        user.username(),
+        null,
+        user.email(),
+        CreationStatus.PENDING,
+        0L,
+        null);
   }
 }

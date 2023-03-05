@@ -5,6 +5,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
 public interface UserRepository extends MongoRepository<UserEntity, ObjectId> {
 
@@ -14,7 +15,11 @@ public interface UserRepository extends MongoRepository<UserEntity, ObjectId> {
 
   Optional<UserEntity> findByKeycloakId(String keycloakId);
 
-  Optional<UserEntity> findFirstByStatusOrderByIdAsc(String status);
+  @Query("{ creationStatus : ?0, creationLock : { $lt : ?1 } }")
+  Optional<UserEntity> findFirstByCreationStatusAndCreationLockLessThanOrderByIdAsc(
+      String creationStatus, long creationLock);
 
-  Optional<UserEntity> findFirstByStatusAndIdGreaterThanOrderByIdAsc(String status, ObjectId id);
+  @Query("{ creationStatus : ?0, creationLock : { $lt : ?1 }, id : { $gt : ?2 } }")
+  Optional<UserEntity> findFirstByCreationStatusAndCreationLockLessAndIdGreaterThanOrderByIdAsc(
+      String creationStatus, long creationLock, ObjectId id);
 }

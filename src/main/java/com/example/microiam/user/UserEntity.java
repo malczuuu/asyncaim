@@ -12,7 +12,8 @@ public record UserEntity(
     @Field(USERNAME) String username,
     @Field("keycloak_id") String keycloakId,
     @Field("email") String email,
-    @Field("status") String status,
+    @Field("creation_status") String creationStatus,
+    @Field("creation_lock") Long creationLock,
     @Version @Field("version") Long version) {
 
   public static final String USERNAME = "username";
