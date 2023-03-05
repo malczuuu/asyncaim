@@ -11,9 +11,12 @@ import org.springframework.context.annotation.Configuration;
 public class KeycloakConfiguration {
 
   private final KeycloakProperties keycloakProperties;
+  private final RealmProperties realmProperties;
 
-  public KeycloakConfiguration(KeycloakProperties keycloakProperties) {
+  public KeycloakConfiguration(
+      KeycloakProperties keycloakProperties, RealmProperties realmProperties) {
     this.keycloakProperties = keycloakProperties;
+    this.realmProperties = realmProperties;
   }
 
   @Bean

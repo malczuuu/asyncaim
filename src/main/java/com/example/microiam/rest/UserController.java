@@ -2,14 +2,14 @@ package com.example.microiam.rest;
 
 import com.example.microiam.common.PageDto;
 import com.example.microiam.common.Pagination;
+import com.example.microiam.user.CreateUserDto;
 import com.example.microiam.user.UserDto;
 import com.example.microiam.user.UserService;
 import com.example.microiam.user.UsersQuery;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api/users")
@@ -24,8 +24,16 @@ public class UserController {
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   public PageDto<UserDto> getUsers(
       @RequestParam(name = "username", required = false) String username,
-      @RequestParam(name = "username", defaultValue = "0") String page,
-      @RequestParam(name = "username", defaultValue = "20") String size) {
+      @RequestParam(name = "page", defaultValue = "0") String page,
+      @RequestParam(name = "size", defaultValue = "20") String size) {
     return userService.getUsers(new UsersQuery(username), Pagination.parse(page, size));
+  }
+
+  @PostMapping(
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  public UserDto requestUserCreation(@RequestBody @Valid CreateUserDto requestBody) {
+    return userService.requestUserCreation(requestBody);
   }
 }

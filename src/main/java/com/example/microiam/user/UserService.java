@@ -2,6 +2,7 @@ package com.example.microiam.user;
 
 import com.example.microiam.common.PageDto;
 import com.example.microiam.common.Pagination;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -10,9 +11,11 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
   private final UserRepository userRepository;
+  private final UserJobExecution userJobExecution;
 
-  public UserService(UserRepository userRepository) {
+  public UserService(UserRepository userRepository, UserJobExecution userJobExecution) {
     this.userRepository = userRepository;
+    this.userJobExecution = userJobExecution;
   }
 
   public PageDto<UserDto> getUsers(UsersQuery query, Pagination pagination) {
@@ -22,6 +25,15 @@ public class UserService {
         pagination.getPage(),
         pagination.getSize(),
         users.getTotalElements());
+  }
+
+  public UserDto requestUserCreation(CreateUserDto user) {
+    UserEntity entity =
+        new UserEntity(
+            null, UUID.randomUUID().toString(), user.username(), null, user.email(), "idle", null);
+    entity = userRepository.save(entity);
+    userJobExecution.triggerUserCreation();
+    return toUserDto(entity);
   }
 
   private Page<UserEntity> findUsers(UsersQuery query, Pagination pagination) {

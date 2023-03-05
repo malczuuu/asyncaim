@@ -14,5 +14,7 @@ public interface UserRepository extends MongoRepository<UserEntity, ObjectId> {
 
   Optional<UserEntity> findByKeycloakId(String keycloakId);
 
-  Optional<UserEntity> findByStatusOrderByIdAsc(String status);
+  Optional<UserEntity> findFirstByStatusOrderByIdAsc(String status);
+
+  Optional<UserEntity> findFirstByStatusAndIdGreaterThanOrderByIdAsc(String status, ObjectId id);
 }
