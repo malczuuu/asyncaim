@@ -30,8 +30,9 @@ public class Application {
   @Bean
   public CommandLineRunner keycloakUsersRunner(Keycloak keycloak, RealmProperties realmProperties) {
     return args -> {
-      Integer count = keycloak.realm(realmProperties.getName()).users().count();
-      log.info("Connected to Keycloak and evaluated count={} users", count);
+      String realm = realmProperties.getName();
+      Integer count = keycloak.realm(realm).users().count();
+      log.info("Connected to Keycloak realm={} and evaluated count={} users", realm, count);
     };
   }
 
