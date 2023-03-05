@@ -2,4 +2,4 @@ spring:
   data:
     mongodb:
       url: mongodb://localhost:27017
-      database: executor
+      database: microiam

@@ -1,4 +1,4 @@
-package com.example.executor.statistic;
+package com.example.microiam.statistic;
 
 import java.time.Instant;
 import org.bson.types.ObjectId;

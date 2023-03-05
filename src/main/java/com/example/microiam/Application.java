@@ -1,6 +1,6 @@
-package com.example.executor;
+package com.example.microiam;
 
-import com.example.executor.statistic.SystemStartup;
+import com.example.microiam.statistic.SystemStartup;
 import java.time.Clock;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
