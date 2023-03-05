@@ -92,6 +92,7 @@ public class UserJobExecution implements InitializingBean {
           user = setKeycloakIdAndCreatedStatus(user, keycloakId);
           user = userRepository.save(user);
         } else {
+          // TODO: handle situation where user account exists
           log.error(
               "Failed to create Keycloak user account for username={}, email={}",
               user.username(),
