@@ -1,7 +1,13 @@
 package com.example.microiam.user;
 
+import com.example.microiam.common.ConcurrentUpdateException;
 import com.example.microiam.common.PageDto;
 import com.example.microiam.common.Pagination;
+import com.example.microiam.common.UpdatePendingException;
+import com.example.microiam.user.execution.CreationStatus;
+import com.example.microiam.user.execution.UpdateStatus;
+import com.example.microiam.user.execution.UserCreateExecution;
+import com.example.microiam.user.execution.UserUpdateExecution;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -10,6 +16,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -21,15 +28,18 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final KeycloakUserService keycloakUserService;
-  private final UserJobExecution userJobExecution;
+  private final UserCreateExecution userCreateExecution;
+  private final UserUpdateExecution userUpdateExecution;
 
   public UserService(
       UserRepository userRepository,
       KeycloakUserService keycloakUserService,
-      UserJobExecution userJobExecution) {
+      UserCreateExecution userCreateExecution,
+      UserUpdateExecution userUpdateExecution) {
     this.userRepository = userRepository;
     this.keycloakUserService = keycloakUserService;
-    this.userJobExecution = userJobExecution;
+    this.userCreateExecution = userCreateExecution;
+    this.userUpdateExecution = userUpdateExecution;
   }
 
   public PageDto<UserDto> getUsers(UsersQuery query, Pagination pagination) {
@@ -47,31 +57,55 @@ public class UserService {
         users.getTotalElements());
   }
 
-  public UserDto requestUserCreation(CreateUserDto user) {
-    UserEntity entity = createNewUserEntity(user);
+  public UserDto getUser(String id) {
+    UserEntity user = userRepository.findByUuid(id).orElseThrow(UserNotFoundException::new);
+    return toUserDto(user, findKeycloakProfile(user));
+  }
+
+  public UserDto requestUserCreation(CreateUserDto creation) {
+    UserEntity entity = createNewUserEntity(creation);
     try {
       entity = userRepository.save(entity);
-      userJobExecution.triggerUserCreation();
-      log.info(
-          "Requested creation of new user (username={}, email={})", user.username(), user.email());
+      userCreateExecution.triggerUserCreation();
+      log.info("Requested creation of new user (creation={})", creation);
       return toUserDto(entity, Map.of());
     } catch (DuplicateKeyException e) {
       log.info(
           "Unable to create new user due to duplicate key (username={}, email={}, error={})",
-          user.username(),
-          user.email(),
+          creation.username(),
+          creation.email(),
           e.getMessage());
       throw new UserConflictException();
     }
   }
 
-  public UserDto getUser(String id) {
-    UserEntity user = userRepository.findByUuid(id).orElseThrow(UserNotFoundException::new);
-    Map<String, KeycloakProfileDto> keycloakProfile =
-        user.keycloakId() != null
-            ? keycloakUserService.getKeycloakUserDetails(List.of(user.keycloakId()))
-            : Map.of();
-    return toUserDto(user, keycloakProfile);
+  public UserDto requestUserUpdate(String id, CreateUserDto update) {
+    UserEntity entity = userRepository.findByUuid(id).orElseThrow(UserNotFoundException::new);
+
+    if (UpdateStatus.PENDING.equals(entity.updateStatus())) {
+      throw new UpdatePendingException();
+    }
+
+    entity = updateUserEntity(entity, update);
+    try {
+      entity = userRepository.save(entity);
+      log.info(
+          "Requested update of user (uuid={}, username={}, email={}, update={})",
+          entity.uuid(),
+          entity.username(),
+          entity.email(),
+          update);
+      userUpdateExecution.triggerUserUpdate();
+      return toUserDto(entity, findKeycloakProfile(entity));
+    } catch (OptimisticLockingFailureException e) {
+      log.info(
+          "Unable to update user due to optimistic locking failure (uuid={}, username={}, email={}, update={})",
+          entity.uuid(),
+          entity.username(),
+          entity.email(),
+          update);
+      throw new ConcurrentUpdateException();
+    }
   }
 
   private Page<UserEntity> findUsers(UsersQuery query, Pagination pagination) {
@@ -79,6 +113,12 @@ public class UserService {
     return query.isPresent()
         ? userRepository.findAllByUsername(query.username(), pagination.asPageable(sortOrder))
         : userRepository.findAll(pagination.asPageable(sortOrder));
+  }
+
+  private Map<String, KeycloakProfileDto> findKeycloakProfile(UserEntity user) {
+    return user.keycloakId() != null
+        ? keycloakUserService.getKeycloakUserDetails(List.of(user.keycloakId()))
+        : Map.of();
   }
 
   private UserDto toUserDto(UserEntity user, Map<String, KeycloakProfileDto> keycloakUsers) {
@@ -99,8 +139,24 @@ public class UserService {
         user.username(),
         user.email(),
         CreationStatus.PENDING,
+        UpdateStatus.IDLE,
+        null,
         0L,
         null,
         null);
+  }
+
+  private UserEntity updateUserEntity(UserEntity entity, CreateUserDto user) {
+    return new UserEntity(
+        entity.id(),
+        entity.uuid(),
+        entity.username(),
+        entity.email(),
+        entity.creationStatus(),
+        UpdateStatus.PENDING,
+        new UserEntity.UserUpdate(user.username(), user.email()),
+        entity.lock(),
+        entity.keycloakId(),
+        entity.version());
   }
 }

@@ -41,4 +41,14 @@ public class UserController {
   public UserDto requestUserCreation(@RequestBody @Valid CreateUserDto requestBody) {
     return userService.requestUserCreation(requestBody);
   }
+
+  @PutMapping(
+      path = "/{id}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  public UserDto requestUserUpdate(
+      @PathVariable("id") String id, @RequestBody @Valid CreateUserDto requestBody) {
+    return userService.requestUserUpdate(id, requestBody);
+  }
 }

@@ -1,6 +1,8 @@
-package com.example.microiam.user;
+package com.example.microiam.user.execution;
 
 import com.example.microiam.keycloak.RealmProperties;
+import com.example.microiam.user.UserEntity;
+import com.example.microiam.user.UserRepository;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
@@ -19,14 +21,15 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserJobExecution implements InitializingBean, DisposableBean {
+public class UserCreateExecutionService
+    implements UserCreateExecution, InitializingBean, DisposableBean {
 
   private static final long SCHEDULER_INITIAL_DELAY_SECONDS = 10;
   private static final long SCHEDULER_DELAY_SECONDS = 60;
   private static final TimeUnit SCHEDULER_UNIT = TimeUnit.SECONDS;
   private static final long LOCK_PERIOD_MILLI = 2 * 60 * 1000;
 
-  private static final Logger log = LoggerFactory.getLogger(UserJobExecution.class);
+  private static final Logger log = LoggerFactory.getLogger(UserCreateExecutionService.class);
 
   private final UserRepository userRepository;
 
@@ -36,7 +39,7 @@ public class UserJobExecution implements InitializingBean, DisposableBean {
 
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-  public UserJobExecution(
+  public UserCreateExecutionService(
       UserRepository userRepository,
       Clock clock,
       Keycloak keycloak,
@@ -53,7 +56,7 @@ public class UserJobExecution implements InitializingBean, DisposableBean {
         this::execute, SCHEDULER_INITIAL_DELAY_SECONDS, SCHEDULER_DELAY_SECONDS, SCHEDULER_UNIT);
     log.info(
         "Scheduled execution of {} (initialDelay={}, delay={}, unit={})",
-        UserJobExecution.class.getSimpleName(),
+        UserCreateExecutionService.class.getSimpleName(),
         SCHEDULER_INITIAL_DELAY_SECONDS,
         SCHEDULER_DELAY_SECONDS,
         SCHEDULER_UNIT);
@@ -63,16 +66,18 @@ public class UserJobExecution implements InitializingBean, DisposableBean {
   public void destroy() throws Exception {
     executor.shutdown();
     while (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
-      log.info("Awaiting termination of {} scheduler", UserJobExecution.class.getSimpleName());
+      log.info(
+          "Awaiting termination of {} scheduler", UserCreateExecutionService.class.getSimpleName());
     }
   }
 
+  @Override
   public void triggerUserCreation() {
     executor.execute(this::execute);
   }
 
   private void execute() {
-    log.debug("Triggered execution of {}", UserJobExecution.class.getSimpleName());
+    log.debug("Triggered execution of {}", UserCreateExecutionService.class.getSimpleName());
     try {
       executeInternal();
     } catch (Exception e) {
@@ -152,6 +157,8 @@ public class UserJobExecution implements InitializingBean, DisposableBean {
         user.username(),
         user.email(),
         user.creationStatus(),
+        user.updateStatus(),
+        user.update(),
         creationLock,
         user.keycloakId(),
         user.version());
@@ -225,8 +232,10 @@ public class UserJobExecution implements InitializingBean, DisposableBean {
         user.uuid(),
         user.username(),
         user.email(),
-        CreationStatus.CREATED,
-        user.creationLock(),
+        CreationStatus.COMPLETED,
+        user.updateStatus(),
+        user.update(),
+        user.lock(),
         keycloakId,
         user.version());
   }
