@@ -126,7 +126,11 @@ public class UserService {
         user.uuid(),
         user.username(),
         user.email(),
-        user.creationStatus(),
+        user.createStatus(),
+        user.updateStatus(),
+        user.update() != null
+            ? new UserDto.UserUpdateDto(user.update().username(), user.update().email())
+            : null,
         user.keycloakId(),
         user.keycloakId() != null ? keycloakUsers.getOrDefault(user.keycloakId(), null) : null,
         user.version());
@@ -152,7 +156,7 @@ public class UserService {
         entity.uuid(),
         entity.username(),
         entity.email(),
-        entity.creationStatus(),
+        entity.createStatus(),
         UpdateStatus.PENDING,
         new UserEntity.UserUpdate(user.username(), user.email()),
         entity.lock(),

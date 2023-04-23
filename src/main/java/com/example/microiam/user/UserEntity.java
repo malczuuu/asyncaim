@@ -13,7 +13,7 @@ public record UserEntity(
     @Field("uuid") String uuid,
     @Field(USERNAME) String username,
     @Field("email") String email,
-    @Field("creation_status") String creationStatus,
+    @Field("create_status") String createStatus,
     @Field("update_status") String updateStatus,
     @Field("update") UserUpdate update,
     @Field("lock") Long lock,
