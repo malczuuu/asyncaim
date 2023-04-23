@@ -21,6 +21,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserJobExecution implements InitializingBean, DisposableBean {
 
+  private static final long SCHEDULER_INITIAL_DELAY_SECONDS = 10;
+  private static final long SCHEDULER_DELAY_SECONDS = 60;
+  private static final TimeUnit SCHEDULER_UNIT = TimeUnit.SECONDS;
+  private static final long LOCK_PERIOD_MILLI = 2 * 60 * 1000;
+
   private static final Logger log = LoggerFactory.getLogger(UserJobExecution.class);
 
   private final UserRepository userRepository;
@@ -28,10 +33,6 @@ public class UserJobExecution implements InitializingBean, DisposableBean {
   private final Clock clock;
   private final Keycloak keycloak;
   private final String realm;
-
-  private final long schedulerInitialDelay = 10;
-  private final long schedulerDelay = 60;
-  private final TimeUnit schedulerUnit = TimeUnit.SECONDS;
 
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -49,13 +50,13 @@ public class UserJobExecution implements InitializingBean, DisposableBean {
   @Override
   public void afterPropertiesSet() {
     executor.scheduleWithFixedDelay(
-        this::execute, schedulerInitialDelay, schedulerDelay, schedulerUnit);
+        this::execute, SCHEDULER_INITIAL_DELAY_SECONDS, SCHEDULER_DELAY_SECONDS, SCHEDULER_UNIT);
     log.info(
         "Scheduled execution of {} (initialDelay={}, delay={}, unit={})",
         UserJobExecution.class.getSimpleName(),
-        schedulerInitialDelay,
-        schedulerDelay,
-        schedulerUnit);
+        SCHEDULER_INITIAL_DELAY_SECONDS,
+        SCHEDULER_DELAY_SECONDS,
+        SCHEDULER_UNIT);
   }
 
   @Override
@@ -137,7 +138,7 @@ public class UserJobExecution implements InitializingBean, DisposableBean {
 
   private Optional<UserEntity> findIdleEntity(long creationLock) {
     return userRepository.findByCreationLockIdle(
-        CreationStatus.PENDING, creationLock - 2 * 60 * 1000);
+        CreationStatus.PENDING, creationLock - LOCK_PERIOD_MILLI);
   }
 
   private RealmResource getKeycloakRealm() {
