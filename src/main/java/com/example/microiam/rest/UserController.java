@@ -29,6 +29,11 @@ public class UserController {
     return userService.getUsers(new UsersQuery(username), Pagination.parse(page, size));
   }
 
+  @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public UserDto getUser(@PathVariable("id") String id) {
+    return userService.getUser(id);
+  }
+
   @PostMapping(
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

@@ -13,12 +13,13 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserJobExecution implements InitializingBean {
+public class UserJobExecution implements InitializingBean, DisposableBean {
 
   private static final Logger log = LoggerFactory.getLogger(UserJobExecution.class);
 
@@ -26,7 +27,11 @@ public class UserJobExecution implements InitializingBean {
 
   private final Clock clock;
   private final Keycloak keycloak;
-  private final RealmProperties realmProperties;
+  private final String realm;
+
+  private final long schedulerInitialDelay = 10;
+  private final long schedulerDelay = 60;
+  private final TimeUnit schedulerUnit = TimeUnit.SECONDS;
 
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -38,30 +43,53 @@ public class UserJobExecution implements InitializingBean {
     this.userRepository = userRepository;
     this.clock = clock;
     this.keycloak = keycloak;
-    this.realmProperties = realmProperties;
+    this.realm = realmProperties.getName();
   }
 
   @Override
   public void afterPropertiesSet() {
-    executor.scheduleWithFixedDelay(this::execute, 30, 60, TimeUnit.SECONDS);
+    executor.scheduleWithFixedDelay(
+        this::execute, schedulerInitialDelay, schedulerDelay, schedulerUnit);
+    log.info(
+        "Scheduled execution of {} (initialDelay={}, delay={}, unit={})",
+        UserJobExecution.class.getSimpleName(),
+        schedulerInitialDelay,
+        schedulerDelay,
+        schedulerUnit);
+  }
+
+  @Override
+  public void destroy() throws Exception {
+    executor.shutdown();
+    while (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
+      log.info("Awaiting termination of {} scheduler", UserJobExecution.class.getSimpleName());
+    }
   }
 
   public void triggerUserCreation() {
     executor.execute(this::execute);
   }
 
-  public void execute() {
-    long creationLock = clock.instant().toEpochMilli();
-    Optional<UserEntity> entity;
+  private void execute() {
+    log.debug("Triggered execution of {}", UserJobExecution.class.getSimpleName());
     try {
-      entity = findIdleEntity(creationLock);
+      executeInternal();
     } catch (Exception e) {
-      e.printStackTrace();
-      return;
+      log.error("Failed to create Keycloak user account on unexpected exception", e);
     }
+  }
+
+  private void executeInternal() {
+    long creationLock = clock.instant().toEpochMilli();
+    Optional<UserEntity> entity = findIdleEntity(creationLock);
 
     while (entity.isPresent()) {
       UserEntity user = entity.get();
+      log.debug(
+          "Executing user creation in Keycloak (realm={}, username={}, email={})",
+          realm,
+          user.username(),
+          user.email());
 
       Optional<UserEntity> lock = acquireLock(user, creationLock);
       if (lock.isEmpty()) {
@@ -73,7 +101,8 @@ public class UserJobExecution implements InitializingBean {
 
       if (checkMatchingByUsername(realm, user) || checkMatchingByEmail(realm, user)) {
         log.error(
-            "Skipping creation of Keycloak user account due to currently existing account and mismatched data for username={}, email={}",
+            "Skipping creation of Keycloak user account due to currently existing account and mismatched data (realm={}, username={}, email={})",
+            realm,
             user.username(),
             user.email());
         continue;
@@ -84,7 +113,7 @@ public class UserJobExecution implements InitializingBean {
       try (Response response = realm.users().create(kcUser)) {
         if (response.getStatus() / 100 == 2) {
           log.info(
-              "Successfully created Keycloak user account for username={}, email={}",
+              "Successfully created Keycloak user account (username={}, email={})",
               user.username(),
               user.email());
 
@@ -94,9 +123,10 @@ public class UserJobExecution implements InitializingBean {
         } else {
           // TODO: handle situation where user account exists
           log.error(
-              "Failed to create Keycloak user account for username={}, email={}",
+              "Failed to create Keycloak user account (username={}, email={}, status={})",
               user.username(),
-              user.email());
+              user.email(),
+              response.getStatus());
         }
       }
 
@@ -106,12 +136,12 @@ public class UserJobExecution implements InitializingBean {
   }
 
   private Optional<UserEntity> findIdleEntity(long creationLock) {
-    return userRepository.findFirstByCreationStatusAndCreationLockLessThanOrderByIdAsc(
+    return userRepository.findByCreationLockIdle(
         CreationStatus.PENDING, creationLock - 2 * 60 * 1000);
   }
 
   private RealmResource getKeycloakRealm() {
-    return keycloak.realm(realmProperties.getName());
+    return keycloak.realm(realm);
   }
 
   private UserEntity setCreationLock(UserEntity user, long creationLock) {
@@ -119,10 +149,10 @@ public class UserJobExecution implements InitializingBean {
         user.id(),
         user.uuid(),
         user.username(),
-        user.keycloakId(),
         user.email(),
         user.creationStatus(),
         creationLock,
+        user.keycloakId(),
         user.version());
   }
 
@@ -193,15 +223,15 @@ public class UserJobExecution implements InitializingBean {
         user.id(),
         user.uuid(),
         user.username(),
-        keycloakId,
         user.email(),
         CreationStatus.CREATED,
         user.creationLock(),
+        keycloakId,
         user.version());
   }
 
   private Optional<UserEntity> findNextIdleEntity(UserEntity user, long creationLock) {
-    return userRepository.findFirstByCreationStatusAndCreationLockLessAndIdGreaterThanOrderByIdAsc(
+    return userRepository.findNextByCreationLockIdle(
         CreationStatus.PENDING, creationLock - 2 * 60 * 1000, user.id());
   }
 }

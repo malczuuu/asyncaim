@@ -13,13 +13,10 @@ public interface UserRepository extends MongoRepository<UserEntity, ObjectId> {
 
   Optional<UserEntity> findByUuid(String uuid);
 
-  Optional<UserEntity> findByKeycloakId(String keycloakId);
-
   @Query("{ creationStatus : ?0, creationLock : { $lt : ?1 } }")
-  Optional<UserEntity> findFirstByCreationStatusAndCreationLockLessThanOrderByIdAsc(
-      String creationStatus, long creationLock);
+  Optional<UserEntity> findByCreationLockIdle(String creationStatus, long creationLock);
 
   @Query("{ creationStatus : ?0, creationLock : { $lt : ?1 }, id : { $gt : ?2 } }")
-  Optional<UserEntity> findFirstByCreationStatusAndCreationLockLessAndIdGreaterThanOrderByIdAsc(
+  Optional<UserEntity> findNextByCreationLockIdle(
       String creationStatus, long creationLock, ObjectId id);
 }

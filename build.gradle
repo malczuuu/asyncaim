@@ -12,12 +12,14 @@ sourceCompatibility = "17"
 
 repositories {
 	mavenCentral()
+	maven { url "https://jitpack.io/" }
 }
 
 dependencies {
 	implementation "org.keycloak:keycloak-admin-client:21.0.1"
 	implementation "org.springframework.boot:spring-boot-starter-data-mongodb"
 	implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "com.github.malczuuu:problem4j-spring-web:3.0.0"
 	testImplementation "org.springframework.boot:spring-boot-starter-test"
 }
 
