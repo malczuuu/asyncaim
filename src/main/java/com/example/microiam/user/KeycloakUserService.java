@@ -2,9 +2,10 @@ package com.example.microiam.user;
 
 import com.example.microiam.keycloak.RealmProperties;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.ws.rs.NotFoundException;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -27,10 +28,9 @@ public class KeycloakUserService {
   }
 
   public Map<String, KeycloakProfileDto> getKeycloakUserDetails(Collection<String> userIds) {
-    Map<String, KeycloakProfileDto> users = new HashMap<>();
-    userIds.forEach(
-        userId -> getKeycloakUserDetails(userId).ifPresent(user -> users.put(userId, user)));
-    return users;
+    return userIds.parallelStream()
+        .flatMap(userId -> getKeycloakUserDetails(userId).stream())
+        .collect(Collectors.toMap(KeycloakProfileDto::id, Function.identity()));
   }
 
   public Optional<KeycloakProfileDto> getKeycloakUserDetails(String userId) {
