@@ -1,4 +1,4 @@
-# MicroAIM
+# AsyncAIM
 
 A prototype service for users management in MongoDB and Keycloak, developed for testing of **async synchronization**
 between MongoDB and Keycloak.
