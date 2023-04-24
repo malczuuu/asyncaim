@@ -1,10 +1,13 @@
 # MicroAIM
 
-A demo service for users management in MongoDB and Keycloak, developed for testing of **asynchronous synchronization**
+A prototype service for users management in MongoDB and Keycloak, developed for testing of **async synchronization**
 between MongoDB and Keycloak.
 
 Application serves a simple REST API that manages users. Creation (`POST`) and update (`PUT`) saves data only to
 MongoDB. Synchronization with Keycloak is performed asynchronously.
+
+This solution would require lots of additional work for error handling, especially in cases of user already existing in
+Keycloak realm.
 
 ## API Docs
 
