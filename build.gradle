@@ -30,6 +30,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
 
     implementation("com.github.malczuuu:problem4j-spring-web:3.1.0-rc2")

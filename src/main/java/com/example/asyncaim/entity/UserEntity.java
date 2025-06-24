@@ -4,7 +4,16 @@ import jakarta.persistence.*;
 import org.springframework.data.annotation.Version;
 
 @Entity
-@Table(name = "users")
+@Table(
+    name = "users",
+    uniqueConstraints = {
+      @UniqueConstraint(
+          name = "users_uid_unique_idx",
+          columnNames = {"user_uid"}),
+      @UniqueConstraint(
+          name = "users_keycloak_id_unique_idx",
+          columnNames = {"keycloak_id"})
+    })
 public class UserEntity {
 
   @Id
