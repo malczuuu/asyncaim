@@ -1,4 +1,4 @@
-package com.example.asyncaim.user.execution;
+package com.example.asyncaim.core.keycloak.execution;
 
 public final class UpdateStatus {
 

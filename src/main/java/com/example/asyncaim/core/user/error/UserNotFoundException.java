@@ -1,4 +1,4 @@
-package com.example.asyncaim.user;
+package com.example.asyncaim.core.user.error;
 
 import com.example.asyncaim.common.NotFoundException;
 

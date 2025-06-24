@@ -1,32 +1,50 @@
 plugins {
-	id "java"
-	id "org.springframework.boot" version "3.0.6"
-	id "io.spring.dependency-management" version "1.1.0"
-	id "com.github.sherter.google-java-format" version "0.9"
+    id "java"
+    id "org.springframework.boot" version "3.5.0"
+    id "io.spring.dependency-management" version "1.1.7"
+    id "com.github.sherter.google-java-format" version "0.9"
 }
 
 group = "com.example"
 version = "1.0.0-SNAPSHOT"
 
-sourceCompatibility = "17"
-
-repositories {
-	mavenCentral()
-	maven { url "https://jitpack.io/" }
-}
-
-dependencies {
-	implementation "org.keycloak:keycloak-admin-client:21.0.2"
-	implementation "org.springframework.boot:spring-boot-starter-data-mongodb"
-	implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation "com.github.malczuuu:problem4j-spring-web:3.0.0"
-	testImplementation "org.springframework.boot:spring-boot-starter-test"
-}
-
-tasks.named("test") {
-	useJUnitPlatform()
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 googleJavaFormat {
-	toolVersion = "1.16.0"
+    toolVersion = "1.27.0"
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io/" }
+}
+
+dependencies {
+    implementation("org.keycloak:keycloak-admin-client:21.0.2")
+
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
+
+    implementation("com.github.malczuuu:problem4j-spring-web:3.1.0-rc2")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+/**
+ * There's no need for a plain JAR.
+ */
+tasks.named("jar") {
+    setEnabled(false)
+}
+
+tasks.named("test") {
+    useJUnitPlatform()
 }

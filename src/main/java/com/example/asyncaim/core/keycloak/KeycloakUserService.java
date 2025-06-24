@@ -1,4 +1,4 @@
-package com.example.asyncaim.user;
+package com.example.asyncaim.core.keycloak;
 
 import com.example.asyncaim.keycloak.RealmProperties;
 import java.util.Collection;
@@ -27,16 +27,16 @@ public class KeycloakUserService {
     this.realm = realmProperties.getName();
   }
 
-  public Map<String, KeycloakProfileDto> getKeycloakUserDetails(Collection<String> userIds) {
+  public Map<String, KeycloakProfile> getKeycloakUserDetails(Collection<String> userIds) {
     return userIds.parallelStream()
         .flatMap(userId -> getKeycloakUserDetails(userId).stream())
-        .collect(Collectors.toMap(KeycloakProfileDto::id, Function.identity()));
+        .collect(Collectors.toMap(KeycloakProfile::id, Function.identity()));
   }
 
-  public Optional<KeycloakProfileDto> getKeycloakUserDetails(String userId) {
+  public Optional<KeycloakProfile> getKeycloakUserDetails(String userId) {
     try {
       UserRepresentation user = retrieveUserRepresentationFromKeycloak(userId);
-      return Optional.of(new KeycloakProfileDto(user.getId(), user.getUsername(), user.getEmail()));
+      return Optional.of(new KeycloakProfile(user.getId(), user.getUsername(), user.getEmail()));
     } catch (NotFoundException e) {
       log.error(
           "Attempted to retrieve unknown user from Keycloak (realm={}, userId={})", realm, userId);

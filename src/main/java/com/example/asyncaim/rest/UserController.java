@@ -2,10 +2,10 @@ package com.example.asyncaim.rest;
 
 import com.example.asyncaim.common.PageDto;
 import com.example.asyncaim.common.Pagination;
-import com.example.asyncaim.user.CreateUserDto;
-import com.example.asyncaim.user.UserDto;
-import com.example.asyncaim.user.UserService;
-import com.example.asyncaim.user.UsersQuery;
+import com.example.asyncaim.core.user.UserService;
+import com.example.asyncaim.core.user.model.User;
+import com.example.asyncaim.core.user.model.UserCreate;
+import com.example.asyncaim.core.user.model.UsersQuery;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,7 +22,7 @@ public class UserController {
   }
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public PageDto<UserDto> getUsers(
+  public PageDto<User> getUsers(
       @RequestParam(name = "username", required = false) String username,
       @RequestParam(name = "page", defaultValue = "0") String page,
       @RequestParam(name = "size", defaultValue = "20") String size) {
@@ -30,7 +30,7 @@ public class UserController {
   }
 
   @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public UserDto getUser(@PathVariable("id") String id) {
+  public User getUser(@PathVariable("id") String id) {
     return userService.getUser(id);
   }
 
@@ -38,17 +38,7 @@ public class UserController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.ACCEPTED)
-  public UserDto requestUserCreation(@RequestBody @Valid CreateUserDto requestBody) {
+  public User requestUserCreation(@RequestBody @Valid UserCreate requestBody) {
     return userService.requestUserCreation(requestBody);
-  }
-
-  @PutMapping(
-      path = "/{id}",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.ACCEPTED)
-  public UserDto requestUserUpdate(
-      @PathVariable("id") String id, @RequestBody @Valid CreateUserDto requestBody) {
-    return userService.requestUserUpdate(id, requestBody);
   }
 }

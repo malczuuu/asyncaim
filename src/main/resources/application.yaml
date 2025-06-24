@@ -2,7 +2,13 @@ server:
   port: 5501
 
 spring:
-  data:
-    mongodb:
-      url: mongodb://localhost:27017
-      database: microiam
+  datasource:
+    url: jdbc:mariadb://127.0.0.1:3306/asyncaim
+    username: asyncaim
+    password: a7FqZ9mXvL2RtHpK
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+      use-new-id-generator-mappings: true
+    database-platform: org.hibernate.dialect.MySQLDialect

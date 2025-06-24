@@ -1,0 +1,25 @@
+services:
+  mariadb:
+    image: mariadb:11.8.2
+    ports:
+      - "127.0.0.1:3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: ingFXT9c8a4ESe01
+    volumes:
+      - mariadb_data:/var/lib/mysql/
+      - ./conf/mariadb/01-privileges.init.sql:/docker-entrypoint-initdb.d/01-privileges.init.sql:ro
+
+  phpmyadmin:
+    image: phpmyadmin:5.2.2
+    ports:
+      - "127.0.0.1:3307:80"
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ingFXT9c8a4ESe01
+    depends_on:
+      - mariadb
+
+volumes:
+  mariadb_data:

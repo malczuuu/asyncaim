@@ -1,4 +1,4 @@
-package com.example.asyncaim.user;
+package com.example.asyncaim.core.user.model;
 
 public record UsersQuery(String username) {
 
