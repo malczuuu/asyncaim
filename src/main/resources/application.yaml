@@ -12,3 +12,6 @@ spring:
       ddl-auto: create
       use-new-id-generator-mappings: true
     database-platform: org.hibernate.dialect.MySQLDialect
+  graphql:
+    graphiql:
+      enabled: true

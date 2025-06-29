@@ -1,0 +1,27 @@
+extend type Query {
+    users(username: String = null, page: Int = 0, size: Int = 20): UsersPage
+    userById(id: String): User
+}
+
+extend type Mutation {
+    createUser(input: UserCreateInput): User
+}
+
+type UsersPage {
+    content: [User]
+    page: Int
+    size: Int
+    totalElements: Int
+}
+
+type User {
+    id: String
+    username: String
+    email: String
+    version: String
+}
+
+input UserCreateInput {
+    username: String!
+    email: String!
+}
