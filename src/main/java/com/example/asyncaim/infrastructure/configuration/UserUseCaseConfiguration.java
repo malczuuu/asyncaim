@@ -1,19 +1,19 @@
 package com.example.asyncaim.infrastructure.configuration;
 
+import com.example.asyncaim.application.user.CreateUserUseCase;
+import com.example.asyncaim.application.user.FindUserUseCase;
+import com.example.asyncaim.application.user.ListUsersUseCase;
+import com.example.asyncaim.application.user.PatchUserUseCase;
+import com.example.asyncaim.application.user.UpdateUserUseCase;
+import com.example.asyncaim.application.user.impl.CreateUserUseCaseService;
+import com.example.asyncaim.application.user.impl.FindUserUseCaseService;
+import com.example.asyncaim.application.user.impl.ListUsersUseCaseService;
+import com.example.asyncaim.application.user.impl.PatchUserUseCaseService;
+import com.example.asyncaim.application.user.impl.UpdateUserUseCaseService;
 import com.example.asyncaim.domain.identifier.IdentifierService;
 import com.example.asyncaim.domain.user.UserRepository;
 import com.example.asyncaim.infrastructure.decorator.TransactionAwarePatchUserUseCase;
 import com.example.asyncaim.infrastructure.decorator.TransactionAwareUpdateUserUseCase;
-import com.example.asyncaim.usecase.user.CreateUserUseCase;
-import com.example.asyncaim.usecase.user.FindUserUseCase;
-import com.example.asyncaim.usecase.user.ListUsersUseCase;
-import com.example.asyncaim.usecase.user.PatchUserUseCase;
-import com.example.asyncaim.usecase.user.UpdateUserUseCase;
-import com.example.asyncaim.usecase.user.impl.CreateUserUseCaseService;
-import com.example.asyncaim.usecase.user.impl.FindUserUseCaseService;
-import com.example.asyncaim.usecase.user.impl.ListUsersUseCaseService;
-import com.example.asyncaim.usecase.user.impl.PatchUserUseCaseService;
-import com.example.asyncaim.usecase.user.impl.UpdateUserUseCaseService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

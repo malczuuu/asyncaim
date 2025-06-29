@@ -1,8 +1,8 @@
 package com.example.asyncaim.infrastructure.decorator;
 
+import com.example.asyncaim.application.user.UpdateUserUseCase;
+import com.example.asyncaim.application.user.model.UserUpdateModel;
 import com.example.asyncaim.domain.user.User;
-import com.example.asyncaim.usecase.user.UpdateUserUseCase;
-import com.example.asyncaim.usecase.user.model.UserUpdateModel;
 import org.springframework.transaction.annotation.Transactional;
 
 public class TransactionAwareUpdateUserUseCase implements UpdateUserUseCase {
