@@ -7,15 +7,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class TransactionAwareUpdateUserUseCase implements UpdateUserUseCase {
 
-  private final UpdateUserUseCase updateUserUseCase;
+  private final UpdateUserUseCase delegate;
 
-  public TransactionAwareUpdateUserUseCase(UpdateUserUseCase updateUserUseCase) {
-    this.updateUserUseCase = updateUserUseCase;
+  public TransactionAwareUpdateUserUseCase(UpdateUserUseCase delegate) {
+    this.delegate = delegate;
   }
 
   @Transactional
   @Override
   public User execute(String id, UserUpdateModel request) {
-    return updateUserUseCase.execute(id, request);
+    return delegate.execute(id, request);
   }
 }
