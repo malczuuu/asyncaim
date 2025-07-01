@@ -70,6 +70,7 @@ public class UserRepositoryJpaAdapter implements UserRepository {
     entity.setVersion(user.getVersion());
     try {
       entity = userJpaRepository.save(entity);
+      userJpaRepository.flush();
       return toUser(entity);
     } catch (DataIntegrityViolationException e) {
       logException(e, user, entity, "update");
@@ -117,7 +118,7 @@ public class UserRepositoryJpaAdapter implements UserRepository {
     UserEntity entity =
         new UserEntity(user.getId(), user.getUsername(), user.getEmail(), user.getCreateStatus());
     try {
-      entity = userJpaRepository.save(entity);
+      entity = userJpaRepository.saveAndFlush(entity);
       return toUser(entity);
     } catch (DataIntegrityViolationException e) {
       logException(e, user, entity, "create");

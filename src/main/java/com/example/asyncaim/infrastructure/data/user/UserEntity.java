@@ -72,6 +72,18 @@ public class UserEntity {
     this(null, uid, username, email, createStatus, 0L, null, null);
   }
 
+  public UserEntity(UserEntity entity) {
+    this(
+        entity.getId(),
+        entity.getUid(),
+        entity.getUsername(),
+        entity.getEmail(),
+        entity.getCreateStatus(),
+        entity.getLock(),
+        entity.getKeycloakId(),
+        entity.getVersion());
+  }
+
   public Long getId() {
     return id;
   }

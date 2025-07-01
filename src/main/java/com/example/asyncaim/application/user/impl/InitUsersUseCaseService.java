@@ -1,26 +1,22 @@
-package com.example.asyncaim.infrastructure.data.init;
+package com.example.asyncaim.application.user.impl;
 
+import com.example.asyncaim.application.user.InitUsersUseCase;
 import com.example.asyncaim.domain.common.Pagination;
 import com.example.asyncaim.domain.common.Status;
 import com.example.asyncaim.domain.user.User;
 import com.example.asyncaim.domain.user.UserRepository;
 import com.example.asyncaim.domain.user.UsersQuery;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-@Component
-public class AdminUserInitializer implements CommandLineRunner {
+public class InitUsersUseCaseService implements InitUsersUseCase {
 
   private final UserRepository userRepository;
 
-  public AdminUserInitializer(UserRepository userRepository) {
+  public InitUsersUseCaseService(UserRepository userRepository) {
     this.userRepository = userRepository;
   }
 
-  @Transactional
   @Override
-  public void run(String... args) {
+  public void execute() {
     if (userRepository.listUsers(UsersQuery.empty(), Pagination.of(0, 1)).totalElements() == 0L) {
 
       User admin = new User("1", "admin", "admin@example.com", Status.IDLE, null);
