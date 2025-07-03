@@ -20,7 +20,7 @@ public class CreateUserUseCaseService implements CreateUserUseCase {
   @Override
   public User execute(UserCreateModel request) {
     User user =
-        new User(identifierService.generateIdentifier(), request.username(), request.email(), null);
+        new User(identifierService.generateIdentifier(), request.username(), request.email());
     return userRepository.save(user);
   }
 }

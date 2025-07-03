@@ -6,6 +6,7 @@ import com.example.asyncaim.domain.user.User;
 import com.example.asyncaim.domain.user.UserRepository;
 import com.example.asyncaim.domain.user.UsersQuery;
 import com.example.asyncaim.infrastructure.data.DuplicateEntityException;
+import java.time.Clock;
 import java.util.Optional;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -22,9 +23,11 @@ public class UserRepositoryJpaAdapter implements UserRepository {
   private static final Logger log = LoggerFactory.getLogger(UserRepositoryJpaAdapter.class);
 
   private final UserJpaRepository userJpaRepository;
+  private final Clock clock;
 
-  public UserRepositoryJpaAdapter(UserJpaRepository userJpaRepository) {
+  public UserRepositoryJpaAdapter(UserJpaRepository userJpaRepository, Clock clock) {
     this.userJpaRepository = userJpaRepository;
+    this.clock = clock;
   }
 
   @Override
@@ -40,7 +43,13 @@ public class UserRepositoryJpaAdapter implements UserRepository {
   }
 
   private User toUser(UserEntity entity) {
-    return new User(entity.getUid(), entity.getUsername(), entity.getEmail(), entity.getVersion());
+    return new User(
+        entity.getUid(),
+        entity.getUsername(),
+        entity.getEmail(),
+        entity.getCreationTime(),
+        entity.getUpdateTime(),
+        entity.getVersion());
   }
 
   @Override
@@ -55,6 +64,12 @@ public class UserRepositoryJpaAdapter implements UserRepository {
     return optionalEntity
         .map(userEntity -> updateUserEntity(user, userEntity))
         .orElseGet(() -> createUserEntity(user));
+  }
+
+  @Transactional
+  @Override
+  public void delete(String id) {
+    userJpaRepository.findByUid(id).ifPresent(entity -> entity.setDeletionTime(clock.instant()));
   }
 
   private User updateUserEntity(User user, UserEntity entity) {

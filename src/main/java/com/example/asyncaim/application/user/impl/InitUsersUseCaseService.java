@@ -18,8 +18,8 @@ public class InitUsersUseCaseService implements InitUsersUseCase {
   public void execute() {
     if (userRepository.listUsers(UsersQuery.empty(), Pagination.of(0, 1)).totalElements() == 0L) {
 
-      User admin = new User("1", "admin", "admin@example.com", null);
-      User user = new User("2", "user", "admin@example.com", null);
+      User admin = new User("1", "admin", "admin@example.com");
+      User user = new User("2", "user", "admin@example.com");
 
       userRepository.save(admin);
       userRepository.save(user);

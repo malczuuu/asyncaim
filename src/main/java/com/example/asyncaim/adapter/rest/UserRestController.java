@@ -1,6 +1,7 @@
 package com.example.asyncaim.adapter.rest;
 
 import com.example.asyncaim.application.user.CreateUserUseCase;
+import com.example.asyncaim.application.user.DeleteUserUseCase;
 import com.example.asyncaim.application.user.FindUserUseCase;
 import com.example.asyncaim.application.user.ListUsersUseCase;
 import com.example.asyncaim.application.user.PatchUserUseCase;
@@ -13,6 +14,7 @@ import com.example.asyncaim.domain.user.UsersQuery;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +35,7 @@ public class UserRestController {
   private final CreateUserUseCase createUserUseCase;
   private final UpdateUserUseCase updateUserUseCase;
   private final PatchUserUseCase patchUserUseCase;
+  private final DeleteUserUseCase deleteUserUseCase;
 
   private final UserMapper userMapper = new UserMapper();
 
@@ -41,12 +44,14 @@ public class UserRestController {
       FindUserUseCase findUserUseCase,
       CreateUserUseCase createUserUseCase,
       UpdateUserUseCase updateUserUseCase,
-      PatchUserUseCase patchUserUseCase) {
+      PatchUserUseCase patchUserUseCase,
+      DeleteUserUseCase deleteUserUseCase) {
     this.listUsersUseCase = listUsersUseCase;
     this.findUserUseCase = findUserUseCase;
     this.createUserUseCase = createUserUseCase;
     this.updateUserUseCase = updateUserUseCase;
     this.patchUserUseCase = patchUserUseCase;
+    this.deleteUserUseCase = deleteUserUseCase;
   }
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -88,5 +93,10 @@ public class UserRestController {
   public UserModel patchUser(
       @PathVariable("id") String id, @RequestBody @Valid UserPatchModel requestBody) {
     return userMapper.toModel(patchUserUseCase.execute(id, requestBody));
+  }
+
+  @DeleteMapping(path = "/{id}")
+  public void deleteUser(@PathVariable("id") String id) {
+    deleteUserUseCase.execute(id);
   }
 }

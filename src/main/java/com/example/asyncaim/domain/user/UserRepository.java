@@ -11,4 +11,6 @@ public interface UserRepository {
   Optional<User> findUser(String id);
 
   User save(User user);
+
+  void delete(String id);
 }

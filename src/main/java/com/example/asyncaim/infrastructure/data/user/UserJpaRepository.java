@@ -8,12 +8,10 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
 
-  @Query("SELECT u FROM UserEntity u WHERE ?1 IS NULL OR u.username LIKE ?1%")
+  @Query(
+      "SELECT u FROM UserEntity u WHERE (?1 IS NULL OR u.username LIKE ?1%) AND u.deletionTime IS NULL")
   Page<UserEntity> findAllByUsername(String username, Pageable pageable);
 
+  @Query("SELECT u FROM UserEntity u WHERE u.uid = ?1 AND u.deletionTime IS NULL")
   Optional<UserEntity> findByUid(String uid);
-
-  @Query(
-      "SELECT u FROM UserEntity u WHERE u.createStatus = ?1 AND u.lock < ?2 ORDER BY u.lock DESC, u.id DESC")
-  Optional<UserEntity> findFirstByCreationLockIdle(String creationStatus, long lock);
 }
