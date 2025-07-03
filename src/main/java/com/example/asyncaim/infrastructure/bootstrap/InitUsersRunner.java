@@ -1,20 +1,20 @@
 package com.example.asyncaim.infrastructure.bootstrap;
 
-import com.example.asyncaim.application.user.InitUsersUseCase;
+import com.example.asyncaim.application.system.SystemInitUseCase;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 @Component
 public class InitUsersRunner implements CommandLineRunner {
 
-  private final InitUsersUseCase initUsersUseCase;
+  private final SystemInitUseCase systemInitUseCase;
 
-  public InitUsersRunner(InitUsersUseCase initUsersUseCase) {
-    this.initUsersUseCase = initUsersUseCase;
+  public InitUsersRunner(SystemInitUseCase systemInitUseCase) {
+    this.systemInitUseCase = systemInitUseCase;
   }
 
   @Override
   public void run(String... args) {
-    initUsersUseCase.execute();
+    systemInitUseCase.execute();
   }
 }

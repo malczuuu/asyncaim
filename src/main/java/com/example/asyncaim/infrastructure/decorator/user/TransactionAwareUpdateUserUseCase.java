@@ -1,4 +1,4 @@
-package com.example.asyncaim.infrastructure.decorator;
+package com.example.asyncaim.infrastructure.decorator.user;
 
 import com.example.asyncaim.application.user.UpdateUserUseCase;
 import com.example.asyncaim.application.user.model.UserUpdateModel;

@@ -66,12 +66,6 @@ public class UserRepositoryJpaAdapter implements UserRepository {
         .orElseGet(() -> createUserEntity(user));
   }
 
-  @Transactional
-  @Override
-  public void delete(String id) {
-    userJpaRepository.findByUid(id).ifPresent(entity -> entity.setDeletionTime(clock.instant()));
-  }
-
   private User updateUserEntity(User user, UserEntity entity) {
     entity.setUsername(user.getUsername());
     entity.setEmail(user.getEmail());
@@ -130,5 +124,11 @@ public class UserRepositoryJpaAdapter implements UserRepository {
       handle(e);
       throw e;
     }
+  }
+
+  @Transactional
+  @Override
+  public void delete(String id) {
+    userJpaRepository.findByUid(id).ifPresent(entity -> entity.setDeletionTime(clock.instant()));
   }
 }
