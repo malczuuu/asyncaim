@@ -1,7 +1,3 @@
 CREATE USER asyncaim IDENTIFIED BY 'a7FqZ9mXvL2RtHpK';
 CREATE DATABASE asyncaim CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci;
 GRANT ALL PRIVILEGES ON asyncaim.* TO asyncaim;
-
-CREATE USER keycloak IDENTIFIED BY 'yBsDABFDIas5jerb';
-CREATE DATABASE keycloak CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci;
-GRANT ALL PRIVILEGES ON keycloak.* TO keycloak;

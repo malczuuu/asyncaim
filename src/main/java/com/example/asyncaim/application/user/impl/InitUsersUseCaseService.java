@@ -2,7 +2,6 @@ package com.example.asyncaim.application.user.impl;
 
 import com.example.asyncaim.application.user.InitUsersUseCase;
 import com.example.asyncaim.domain.common.Pagination;
-import com.example.asyncaim.domain.common.Status;
 import com.example.asyncaim.domain.user.User;
 import com.example.asyncaim.domain.user.UserRepository;
 import com.example.asyncaim.domain.user.UsersQuery;
@@ -19,8 +18,8 @@ public class InitUsersUseCaseService implements InitUsersUseCase {
   public void execute() {
     if (userRepository.listUsers(UsersQuery.empty(), Pagination.of(0, 1)).totalElements() == 0L) {
 
-      User admin = new User("1", "admin", "admin@example.com", Status.IDLE, null);
-      User user = new User("2", "user", "admin@example.com", Status.IDLE, null);
+      User admin = new User("1", "admin", "admin@example.com", null);
+      User user = new User("2", "user", "admin@example.com", null);
 
       userRepository.save(admin);
       userRepository.save(user);

@@ -6,5 +6,4 @@ public record UserListItemModel(
     @JsonProperty("id") String id,
     @JsonProperty("username") String username,
     @JsonProperty("email") String email,
-    @JsonProperty("createStatus") String createStatus,
     @JsonProperty("version") Long version) {}

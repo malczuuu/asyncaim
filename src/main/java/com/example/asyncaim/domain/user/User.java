@@ -5,30 +5,20 @@ public class User {
   private final String id;
   private String username;
   private String email;
-  private String createStatus;
-  private String keycloakId;
   private final Long version;
 
   public User() {
-    this(null, null, null, null, null);
+    this(null, null, null);
   }
 
-  public User(String id, String username, String email, String createStatus, String keycloakId) {
-    this(id, username, email, createStatus, keycloakId, null);
+  public User(String id, String username, String email) {
+    this(id, username, email, null);
   }
 
-  public User(
-      String id,
-      String username,
-      String email,
-      String createStatus,
-      String keycloakId,
-      Long version) {
+  public User(String id, String username, String email, Long version) {
     this.id = id;
     this.username = username;
     this.email = email;
-    this.createStatus = createStatus;
-    this.keycloakId = keycloakId;
     this.version = version;
   }
 
@@ -44,14 +34,6 @@ public class User {
     return email;
   }
 
-  public String getCreateStatus() {
-    return createStatus;
-  }
-
-  public String getKeycloakId() {
-    return keycloakId;
-  }
-
   public Long getVersion() {
     return version;
   }
@@ -62,13 +44,5 @@ public class User {
 
   public void setEmail(String email) {
     this.email = email;
-  }
-
-  public void setCreateStatus(String createStatus) {
-    this.createStatus = createStatus;
-  }
-
-  public void setKeycloakId(String keycloakId) {
-    this.keycloakId = keycloakId;
   }
 }

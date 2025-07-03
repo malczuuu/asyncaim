@@ -6,21 +6,10 @@ public class UserMapper {
 
   public UserListItemModel toListItemModel(User user) {
     return new UserListItemModel(
-        user.getId(),
-        user.getUsername(),
-        user.getEmail(),
-        user.getCreateStatus(),
-        user.getVersion());
+        user.getId(), user.getUsername(), user.getEmail(), user.getVersion());
   }
 
   public UserModel toModel(User user) {
-    return new UserModel(
-        user.getId(),
-        user.getUsername(),
-        user.getEmail(),
-        user.getCreateStatus(),
-        user.getKeycloakId(),
-        null,
-        user.getVersion());
+    return new UserModel(user.getId(), user.getUsername(), user.getEmail(), user.getVersion());
   }
 }

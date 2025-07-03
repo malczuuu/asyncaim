@@ -40,13 +40,7 @@ public class UserRepositoryJpaAdapter implements UserRepository {
   }
 
   private User toUser(UserEntity entity) {
-    return new User(
-        entity.getUid(),
-        entity.getUsername(),
-        entity.getEmail(),
-        entity.getCreateStatus(),
-        entity.getKeycloakId(),
-        entity.getVersion());
+    return new User(entity.getUid(), entity.getUsername(), entity.getEmail(), entity.getVersion());
   }
 
   @Override
@@ -66,7 +60,6 @@ public class UserRepositoryJpaAdapter implements UserRepository {
   private User updateUserEntity(User user, UserEntity entity) {
     entity.setUsername(user.getUsername());
     entity.setEmail(user.getEmail());
-    entity.setCreateStatus(user.getCreateStatus());
     entity.setVersion(user.getVersion());
     try {
       entity = userJpaRepository.save(entity);
@@ -107,16 +100,13 @@ public class UserRepositoryJpaAdapter implements UserRepository {
             throw new DuplicateEntityException("", "user", "id", e);
           case "users_username_unique_idx":
             throw new DuplicateEntityException("", "user", "username", e);
-          case "users_keycloak_id_unique_idx":
-            throw new DuplicateEntityException("", "user", "keycloakId", e);
         }
       }
     }
   }
 
   private User createUserEntity(User user) {
-    UserEntity entity =
-        new UserEntity(user.getId(), user.getUsername(), user.getEmail(), user.getCreateStatus());
+    UserEntity entity = new UserEntity(user.getId(), user.getUsername(), user.getEmail());
     try {
       entity = userJpaRepository.saveAndFlush(entity);
       return toUser(entity);
